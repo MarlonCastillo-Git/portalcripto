@@ -1,4 +1,4 @@
-# PortalCripto
+# PortalCripto (Tarea de Marlon Castillo)
 
 Portal web en español para consultar criptomonedas almacenadas en Supabase. Permite explorar el catálogo, filtrar por categoría y abrir el detalle de cada moneda.
 
