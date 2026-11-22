@@ -18,7 +18,7 @@ return (
 Portal para visualizar diversos tipos de criptomonedas.
 </p>
 <a
-href="#criptomoneda"
+href="#rutas"
 className="mt-8 inline-block rounded-full bg-teal-700 px-8 py-3 font-semibold text-white transition hover:bg-teal-800"
 >
 Ver Criptomonedas
