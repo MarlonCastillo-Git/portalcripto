@@ -26,7 +26,7 @@ return (
 
 <main className="mx-auto w-full max-w-6xl flex-1 px-6 py-10">{children}</main>
 
-<footer className="border-t border-stone-200 py-6 text-center text-sm text-stone-500"> Hecho con Next.js 16 + Supabase - Kodigo
+<footer className="border-t border-stone-200 py-6 text-center text-sm text-stone-500"> Hecho con Next.js + Supabase - Kodigo
 </footer>
 </body>
 </html>

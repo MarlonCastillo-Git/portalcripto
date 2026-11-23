@@ -8,7 +8,7 @@ import { getCriptomonedaById, getCriptomoneda } from "@/lib/queries";
 export const revalidate = 60;
 
 
-// En Next.js 16 `params` es una Promise → hay que hacer await
+// En Next.js 15 `params` es una Promise → hay que hacer await
 type Props = { params: Promise<{ id: string }> };
 
 // SSG: genera en build una página por cada ruta existente

@@ -1,0 +1,20 @@
+version: 1
+frontend:
+  phases:
+    preBuild:
+      commands:
+        - nvm install 22
+        - nvm use 22
+        - npm install --global pnpm@10.34.9
+        - pnpm install --frozen-lockfile --node-linker=hoisted
+        - node scripts/amplify-env.mjs
+    build:
+      commands:
+        - pnpm run build
+  artifacts:
+    baseDirectory: .next
+    files:
+      - '**/*'
+  cache:
+    paths:
+      - .next/cache/**/*

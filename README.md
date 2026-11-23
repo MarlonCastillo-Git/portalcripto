@@ -18,7 +18,7 @@ Los precios provienen de los registros de la base de datos. La aplicación no co
 ### Requisitos
 
 - Node.js **22 o superior**, requerido por la versión instalada del cliente de Supabase.
-- pnpm **12.3.4**, versión indicada en `package.json`.
+- pnpm **10.34.9**, versión indicada en `package.json`.
 - Un proyecto Supabase con las tablas, la relación y las políticas de lectura descritas más abajo.
 - Conexión a Internet para instalar dependencias y consultar Supabase e imágenes externas.
 
@@ -39,10 +39,10 @@ Los comandos siguientes están pensados para macOS o Linux. En Windows, utilizar
    ```bash
    node --version
    pnpm --version
-   pnpm install --frozen-lockfile
+   pnpm install --frozen-lockfile --node-linker=hoisted
    ```
 
-   Si pnpm no está instalado, puedes instalar la versión del proyecto con `npm install --global pnpm@12.3.4`.
+   Si pnpm no está instalado, puedes instalar la versión del proyecto con `npm install --global pnpm@10.34.9`.
 
 3. Crea o configura `.env.local` en la raíz del proyecto con las variables de la sección siguiente. Si ya existe, conserva sus valores válidos.
 
@@ -132,3 +132,62 @@ La compilación de producción requiere las variables de entorno y acceso a Supa
 - **Imágenes rechazadas:** el dominio y la ruta de `imagen_url` deben estar permitidos en `images.remotePatterns` de `next.config.ts`. Ya están configurados los dominios de CoinGecko y CoinMarketCap utilizados por el catálogo.
 - **Puerto ocupado:** abre el puerto alternativo indicado en la terminal.
 - **Acceso desde otro dispositivo:** usa la IP local del equipo y el puerto indicado, en la misma red. Si cambia esa IP, revisa `allowedDevOrigins` en `next.config.ts`.
+
+
+## Despliegue en AWS Amplify Hosting
+
+El repositorio contiene una sola aplicación: conectar la rama `main` con la raíz
+(del repositorio, no una carpeta llamada `main`). `amplify.yml` controla la
+compilación y publica `.next` con Amplify Hosting Compute (plataforma
+`WEB_COMPUTE`, framework de la rama `Next.js - SSR`). No usar hosting estático,
+`out`, `public` ni una regla SPA que redirija todo a `/index.html`.
+
+Se utiliza Next.js 15.5.29 porque la documentación de AWS consultada declara
+soporte administrado para Next.js 12–15. Se conservan ISR y optimización de imágenes.
+El entorno de compilación debe usar Amazon Linux 2023 y Node.js 22.
+El buildspec selecciona Node.js 22 e instala pnpm 10.34.9; `.npmrc` y `pnpm-workspace.yaml` configuran
+`node-linker=hoisted`, recomendado por AWS para pnpm.
+
+Configurar en Amplify, antes del build:
+
+- `NEXT_PUBLIC_SUPABASE_URL`: URL HTTPS del proyecto Supabase activo.
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`: clave publicable del mismo proyecto.
+
+`scripts/amplify-env.mjs` valida y escribe únicamente estas variables públicas en
+`.env.production` para su uso por los componentes del servidor. No imprime sus
+valores. No usar claves secretas ni `service_role`. Los archivos `.env*` están
+excluidos de Git. El build consulta Supabase al generar las páginas y necesita
+acceso de red y permisos de lectura para `categorias` y `criptomonedas`.
+
+Verificación local (Node.js 22):
+
+```bash
+pnpm install --frozen-lockfile --node-linker=hoisted
+pnpm run build
+pnpm run start
+```
+
+Después de subir los cambios a GitHub, confirmar que la implementación de `main`
+muestra el commit nuevo y que Provision, Build y Deploy terminan correctamente.
+Un build local exitoso no prueba la configuración de la cuenta de AWS. La pantalla
+Welcome no identifica la causa: revisar los registros de implementación y la
+plataforma configurada. No es necesario un `index.html` en la raíz de `.next`.
+
+Si la aplicación existente está marcada como `WEB` en vez de `WEB_COMPUTE`,
+un administrador puede corregirla desde AWS CloudShell (cuenta y región correctas):
+
+```bash
+aws amplify get-app --app-id d1n4s1iqik4qs1 --query 'app.{platform:platform,repository:repository}'
+aws amplify update-app --app-id d1n4s1iqik4qs1 --platform WEB_COMPUTE
+aws amplify update-branch --app-id d1n4s1iqik4qs1 --branch-name main --framework 'Next.js - SSR'
+```
+
+Consultar primero `get-app`; ejecutar las actualizaciones solo si son necesarias.
+No se ejecutan automáticamente desde el proyecto.
+
+Referencias oficiales:
+- https://docs.aws.amazon.com/amplify/latest/userguide/deploy-nextjs-app.html
+- https://docs.aws.amazon.com/amplify/latest/userguide/ssr-amplify-support.html
+- https://docs.aws.amazon.com/amplify/latest/userguide/ssr-environment-variables.html
+- https://docs.aws.amazon.com/amplify/latest/userguide/monorepo-configuration.html
+- https://docs.aws.amazon.com/amplify/latest/userguide/redeploy-ssg-to-ssr.html
