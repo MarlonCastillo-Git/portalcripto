@@ -1,5 +1,8 @@
 # PortalCripto (Tarea de Marlon Castillo)
 
+URL público del despliegue en AWS Amplify: https://main.d1n4s1iqik4qs1.amplifyapp.com/
+agregado el 22 de Noviembre.
+
 Portal web en español para consultar criptomonedas almacenadas en Supabase. Permite explorar el catálogo, filtrar por categoría y abrir el detalle de cada moneda.
 
 Las tarjetas y el detalle muestran **Precio :** y **Capitalización Total :**, en USD. La capitalización se presenta en miles, millones o billones, con hasta dos decimales. Se utiliza la escala española: un billón equivale a un millón de millones (10¹²).
